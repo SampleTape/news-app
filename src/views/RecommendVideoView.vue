@@ -1,68 +1,95 @@
 <template>
   <div class="recommend-video-list">
-    <ul>
+    <van-loading type="spinner" v-if="isLoading" class="loading-icon" />
+    <ul v-else>
       <li v-for="video in videoList" :key="video.id">
-        <videoCard v-bind="video"></videoCard>
+        <lazy-component>
+          <videoCard v-bind="video"></videoCard>
+        </lazy-component>
       </li>
     </ul>
   </div>
 </template>
 <script>
 import VideoCard from "@/components/VideoCard.vue";
+import { getApi } from "@/util/api.js";
 export default {
   components: {
     VideoCard,
   },
   data() {
     return {
-      videoList: [
-        {
-          id: "v10001",
-          author: "天津卫视",
-          title: "2022天津卫视春晚：岳云鹏 孙越《我还行不行》",
-          isFollow: false,
-          avatarUrl:
-            "https://sf3-cdn-tos.toutiaostatic.com/img/user-avatar/16a5ed6307ed6458da8a6f50bdf5e156~300x300.image",
-          imgUrl: "",
-          videoUrl:
-            "https://assets.mixkit.co/videos/preview/mixkit-going-down-a-curved-highway-down-a-mountain-41576-large.mp4",
-          isCollected: false,
-          isLiked: false,
-          commentNum: "301",
-          likeNum: "100",
-        },
-        {
-          id: "v10002",
-          author: "天津卫视",
-          title: "2022天津卫视春晚：岳云鹏 孙越《我还行不行》",
-          isFollow: false,
-          avatarUrl:
-            "https://sf3-cdn-tos.toutiaostatic.com/img/user-avatar/16a5ed6307ed6458da8a6f50bdf5e156~300x300.image",
-          imgUrl: "",
-          videoUrl:
-            "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
-          isCollected: true,
-          isLiked: true,
-          commentNum: "301",
-          likeNum: "100",
-        },
-        {
-          id: "v10003",
-          author: "天津卫视",
-          title: "2022天津卫视春晚：岳云鹏 孙越《我还行不行》",
-          isFollow: false,
-          avatarUrl:
-            "https://sf3-cdn-tos.toutiaostatic.com/img/user-avatar/16a5ed6307ed6458da8a6f50bdf5e156~300x300.image",
-          imgUrl: "",
-          videoUrl:
-            "https://assets.mixkit.co/videos/preview/mixkit-clouds-and-blue-sky-2408-large.mp4",
-          isCollected: false,
-          isLiked: false,
-          commentNum: "301",
-          likeNum: "100",
-        },
-      ],
+      videoList: [],
+      isLoading: true,
     };
+  },
+  mounted() {
+    getApi("/videolist").then((res) => {
+      res.data.forEach((v) => {
+        this.videoList.push({
+          ...v,
+          initPlaying: false,
+        });
+      });
+
+      this.isLoading = false;
+    });
+
+    // 监听滚动事件，视频位于视口上半部分自动播放
+    window.addEventListener("scroll", this.onScroll);
+  },
+
+  beforeUnmount() {
+    // 必须移除监听器，不然当该vue组件被销毁了，监听器还在就会出错
+    window.removeEventListener("scroll", this.onScroll);
+  },
+
+  methods: {
+    onScroll() {
+      let videos = document.getElementsByClassName("video");
+      let threshold = this.getViewport().height / 2;
+      for (let i = 0; i < videos.length; i++) {
+        let offsetTop = this.getElementViewTop(videos[i]);
+        if (offsetTop < threshold && offsetTop > 68) {
+          videos[i].play();
+          this.videoList[i].initPlaying = true;
+        } else {
+          videos[i].pause();
+          this.videoList[i].initPlaying = false;
+        }
+      }
+    },
+    getViewport() {
+      if (document.compatMode == "BackCompat") {
+        return {
+          width: document.body.clientWidth,
+          height: document.body.clientHeight,
+        };
+      } else {
+        return {
+          width: document.documentElement.clientWidth,
+          height: document.documentElement.clientHeight,
+        };
+      }
+    },
+    getElementViewTop(element) {
+      var actualTop = element.offsetTop;
+      var current = element.offsetParent;
+
+      while (current !== null) {
+        actualTop += current.offsetTop;
+        current = current.offsetParent;
+      }
+
+      let elementScrollTop;
+      if (document.compatMode == "BackCompat") {
+        elementScrollTop = document.body.scrollTop;
+      } else {
+        elementScrollTop = document.documentElement.scrollTop;
+      }
+
+      return actualTop - elementScrollTop;
+    },
   },
 };
 </script>
@@ -72,5 +99,9 @@ li {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+.loading-icon {
+  text-align: center;
+  margin: 20px auto;
 }
 </style>

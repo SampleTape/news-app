@@ -8,6 +8,7 @@ import { far } from "@fortawesome/free-regular-svg-icons";
 import { fas } from "@fortawesome/free-solid-svg-icons";
 /* import font awesome icon component */
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { Lazyload, Loading, Toast } from "vant";
 import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
@@ -24,4 +25,12 @@ app.component("NavBar", NavBar);
 app.component("FooterComponent", FooterComponent);
 app.component("font-awesome-icon", FontAwesomeIcon);
 
-app.use(store).use(router).mount("#app");
+app.use(store);
+app.use(Lazyload, {
+  lazyComponent: true,
+});
+app.use(Loading);
+app.use(Toast);
+app.use(router);
+
+app.mount("#app");

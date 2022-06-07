@@ -71,7 +71,7 @@ export default {
     width: 1.85rem;
     height: 3rem;
     color: #ffffff;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     text-align: center;
     margin: 0 0.5rem;
     padding-top: 0.5rem;

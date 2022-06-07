@@ -61,6 +61,7 @@
 
 <script>
 import HotNewsList from "@/components/HotNewsList.vue";
+import { getApi } from "@/util/api.js";
 export default {
   name: "HotListView",
   components: {
@@ -81,143 +82,14 @@ export default {
         "娱乐榜",
       ],
       topNews: {
-        id: "1000090",
-        title: "共创后疫情时代美好世界",
+        id: "",
+        title: "",
         tag: 0,
       },
-      newsList: [
-        {
-          id: "1000001",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000002",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000003",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000004",
-          title: "共创后疫情时代美好世界",
-          tag: 2,
-        },
-        {
-          id: "1000005",
-          title: "共创后疫情时代美好世界",
-          tag: 1,
-        },
-        {
-          id: "1000006",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000007",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000008",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000009",
-          title: "共创后疫情时代美好世界",
-          tag: 2,
-        },
-        {
-          id: "1000010",
-          title: "共创后疫情时代美好世界",
-          tag: 1,
-        },
-      ],
-      cityNewsList: [
-        {
-          id: "1000001",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000002",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000003",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000004",
-          title: "共创后疫情时代美好世界",
-          tag: 2,
-        },
-        {
-          id: "1000005",
-          title: "共创后疫情时代美好世界",
-          tag: 1,
-        },
-      ],
-      stockNewsList: [
-        {
-          id: "1000001",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000002",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000003",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000004",
-          title: "共创后疫情时代美好世界",
-          tag: 2,
-        },
-        {
-          id: "1000005",
-          title: "共创后疫情时代美好世界",
-          tag: 1,
-        },
-      ],
-      globalNewsList: [
-        {
-          id: "1000001",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000002",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000003",
-          title: "共创后疫情时代美好世界",
-          tag: 0,
-        },
-        {
-          id: "1000004",
-          title: "共创后疫情时代美好世界",
-          tag: 2,
-        },
-        {
-          id: "1000005",
-          title: "共创后疫情时代美好世界",
-          tag: 1,
-        },
-      ],
+      newsList: [],
+      cityNewsList: [],
+      stockNewsList: [],
+      globalNewsList: [],
     };
   },
 
@@ -227,6 +99,20 @@ export default {
 
     //导航栏变色
     document.querySelectorAll(".nav-bar")[0].classList.add("red");
+
+    getApi("/hotnewslist")
+      .then((res) => {
+        let { topNews, newsList, cityNewsList, stockNewsList, globalNewsList } =
+          res.data;
+        this.topNews = topNews;
+        this.newsList = newsList;
+        this.cityNewsList = cityNewsList;
+        this.stockNewsList = stockNewsList;
+        this.globalNewsList = globalNewsList;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   },
   beforeUnmount() {
     // 必须移除监听器，不然当该vue组件被销毁了，监听器还在就会出错
