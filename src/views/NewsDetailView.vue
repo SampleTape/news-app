@@ -1,5 +1,6 @@
 <template>
-  <div class="news-detail-container">
+  <van-loading type="spinner" v-if="isLoading" class="loading-icon" />
+  <div v-else class="news-detail-container">
     <div class="tool-bar-top">
       <div class="tool-bar-left">
         <div class="icon" @click="back">
@@ -42,12 +43,19 @@
       </div>
       <div class="news-body" v-html="newsContent"></div>
     </div>
+    <NewsCommentList
+      :commentsNum="commentsNum"
+      :likeNum="likeNum"
+      :forwardNum="forwardNum"
+      :commentsList="commentsList"
+      :newsId="id"
+    ></NewsCommentList>
     <div class="tool-bar-bottom">
-      <div class="tool-bar-bottom-left">
+      <div class="tool-bar-bottom-left" @click.stop="handlePostComment">
         <div class="icon">
           <font-awesome-icon :icon="['fas', 'pen']"></font-awesome-icon>
         </div>
-        <input type="text" placeholder="写评论..." />
+        <span>写评论...</span>
       </div>
       <div class="tool-bar-bottom-right">
         <div class="icon">
@@ -66,34 +74,136 @@
         </div>
       </div>
     </div>
+    <div class="comment-input-modal" v-show="showCommentInput">
+      <div class="edit-box">
+        <textarea
+          id="comment-input-box"
+          autofocus="autofocus"
+          placeholder="友善是交流的起点"
+          v-model="newComment"
+        ></textarea>
+        <div class="post-button" @click="postComment">发布</div>
+      </div>
+      <div class="buttons-box">
+        <div class="left">
+          <input type="checkbox" />
+          同时转发
+        </div>
+        <div class="right">
+          <font-awesome-icon
+            class="icon"
+            :icon="['fas', 'at']"
+          ></font-awesome-icon>
+          <font-awesome-icon
+            class="icon"
+            :icon="['fas', 'hashtag']"
+          ></font-awesome-icon>
+          <font-awesome-icon
+            class="icon"
+            :icon="['far', 'face-smile']"
+          ></font-awesome-icon>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import { getApi, postApi } from "@/util/api.js";
+import { escape2Html } from "@/util/str.js";
+import NewsCommentList from "@/components/NewsCommentList.vue";
+import { mapState } from "vuex";
 export default {
   name: "NewsDetailView",
-
+  components: {
+    NewsCommentList,
+  },
   data() {
     return {
-      newsTitle:
-        "我国本土疫情防控形势如何？花粉过敏是否影响疫苗接种？官方最新解答",
-      avatarUrl:
-        "https://sf6-cdn-tos.toutiaostatic.com/img/user-avatar/9e74e54609204cb1eb0d69f0ab1de263~300x300.image",
-      from: "央视新闻",
-      time: "2022-04-07 12:34",
-      fromInfo: "央视新闻官方账号",
-      tag: "原创",
-      newsContent: `<article class="syl-article-base tt-article-content syl-page-article syl-device-pc"><p>编者按：</p><p>每一个努力生活的中国人，都是最美的奋斗者。也正是因为亿万奋斗者，才有了今日之中国。十年，致敬每一个奋斗的你。让我们一起，踔厉奋发新时代，笃行不怠向未来。</p><p>中新网昭通4月7日电 题：一家两代三人：护鹤员30余年接力守护“高原精灵”</p><p>作者 罗婕 郑远见</p><p>4月初，春季的云南昭通大山包刚经历连续降雪，寒意料峭。</p><p>6日，大山包黑颈鹤国家级自然保护区内还有100余只黑颈鹤，因为寒潮没能跟上大部队正常北迁。上午11点刚过，护鹤员赵炳祥带着15公斤玉米来到保护区内的大海子湿地，给严寒天气下的“高原精灵”黑颈鹤投食。</p><img src="https://p3.toutiaoimg.com/origin/tos-cn-i-tjoges91tu/T2HCknR81gytc0?from=pc" width="100%"  alt="「十年@每一个奋斗的你」一家两代三人：护鹤员30余年接力守护“高原精灵”" inline="0" class="syl-page-img" style="height: auto;"><p>图为投食完毕，赵炳祥背着孩子回家。 郑远见 摄</p><p>有着“中国黑颈鹤之乡”的云南昭通大山包是世界濒危物种、国家一级重点保护野生动物黑颈鹤重要的越冬地之一。经过30多年的有效保护，到此越冬的黑颈鹤数量已由建立保护区之初的300多只增加到近2000只。</p><p>保护区工作人员吴太平介绍，在候鸟迁徙和越冬期间，工作人员要做好野生动物疫源疫病防控、受伤野生动物的救治等工作，此外，护鹤员也是黑颈鹤保护不可或缺的参与者。</p><p>赵炳祥一家两代三人都在保护区担任过护鹤员，每年11月到次年4月，他们协助保护区工作人员确认黑颈鹤数量，在极端天气的情况下给黑颈鹤投食。</p><p>“我们一家和黑颈鹤的缘分从我母亲董应兰那里开始。1990年保护区刚成立时，她成为当时唯一一个护鹤员。”赵炳祥回忆，童年时总在离家不远处听见黑颈鹤的叫声，当地人都叫它们“雁鹅”，他常跟随母亲一起护鹤，母亲在投食，他就在一旁数黑颈鹤。</p><img src="https://p3.toutiaoimg.com/origin/tos-cn-i-tjoges91tu/T2HCkoG1Q926y9?from=pc" width="100%"  alt="「十年@每一个奋斗的你」一家两代三人：护鹤员30余年接力守护“高原精灵”" inline="0" class="syl-page-img" style="height: auto;"><p>图为4月5日，雪中的黑颈鹤。 吴太平 摄</p><p>随着董应兰年事渐高，脚伤难以行走，逐渐负担不起护鹤员的工作，2003年，妻子陈光惠正式接下了守护黑颈鹤的接力棒。往后将近20年中，她用独特的口哨声与黑颈鹤交流，参与救助多只黑颈鹤，成了它们的好朋友。</p><p>“现在我也成了保护区的一名护鹤员。”赵炳祥告诉记者，当地的青壮年大多到外地务工，老一辈护鹤人退休后他毫不迟疑地顶上了这个位置，“主要还是喜欢这些高原精灵，在我有生之年想好好守护它们”。</p><p>今年2月下旬，陈光惠在大雪中为黑颈鹤投食时受伤住院，照管家中老人孩子和护鹤的工作全部落在赵炳祥的身上。恰逢黑颈鹤北迁，为了投食救助在大海子湿地停息中转的黑颈鹤，他每天6点半进入保护区确认黑颈鹤数量，再完成两次投食工作。</p><img src="https://p3.toutiaoimg.com/origin/tos-cn-i-tjoges91tu/T2HCkp07Xnpwhi?from=pc" width="100%" alt="「十年@每一个奋斗的你」一家两代三人：护鹤员30余年接力守护“高原精灵”" inline="0" class="syl-page-img" style="height: auto;"><p>图为赵炳祥、陈光惠夫妻。 郑远见 摄</p><p>为了兼顾护鹤工作和家庭，赵炳祥将两岁的小儿子放进装玉米的背篓，跟随他一起给黑颈鹤投食。“儿子每次看到鹤群都很开心，随着黑颈鹤展翅手舞足蹈。”</p><p>赵炳祥表示，“爱鹤护鹤已成为我们一家生活的一部分，我们和黑颈鹤也相互依存。希望小辈们能将接力棒传递下去，做黑颈鹤的守护者”。(完)</p><p>来源：中国新闻网</p></article>`,
+      id: "",
+      newsTitle: "",
+      avatarUrl: "",
+      from: "",
+      time: "",
+      fromInfo: "",
+      tag: "",
+      newsContent: "",
+      commentsNum: 0,
+      likeNum: 0,
+      forwardNum: 0,
+      commentsList: [],
+      isLoading: false,
+      showCommentInput: false,
+      newComment: "",
     };
   },
-
+  computed: {
+    ...mapState({
+      userId: "userId",
+      userName: "userName",
+      userAvatar: "userAvatar",
+    }),
+  },
   mounted() {
-    console.log(this.$route.params.id);
+    this.id = this.$route.params.id;
+    this.isLoading = true;
+    // 新闻详情接口
+    getApi("/newsdetail/" + this.id).then((res) => {
+      this.newsTitle = res.data.newsTitle;
+      this.avatarUrl = res.data.avatarUrl;
+      this.from = res.data.from;
+      this.time = res.data.time;
+      this.fromInfo = res.data.fromInfo;
+      this.tag = res.data.tag;
+      // 新闻内容反转义
+      this.newsContent = escape2Html(res.data.newsContent);
+      this.commentsNum = res.data.commentsNum;
+      this.likeNum = res.data.likeNum;
+      this.forwardNum = res.data.forwardNum;
+
+      this.isLoading = false;
+    });
+
+    // 新闻评论接口
+    getApi("/newscommentslist/" + this.id).then((res) => {
+      this.commentsList = res.data;
+    });
   },
 
   methods: {
     back() {
       this.$router.go(-1);
+    },
+    handlePostComment() {
+      this.showCommentInput = true;
+
+      // 唤起手机键盘
+      const commentInputBox = document.getElementById("comment-input-box");
+      this.$nextTick(() => {
+        commentInputBox.focus();
+      });
+    },
+    postComment() {
+      postApi("/newscomment", {
+        newsId: this.id,
+        userId: this.userId,
+        content: this.newComment,
+      }).then(() => {
+        this.commentsList.unshift({
+          id: "cmt20000001",
+          userId: this.userId,
+          newsId: this.id,
+          userName: this.userName,
+          avatar: this.userAvatar,
+          isLike: false,
+          likeNum: 0,
+          content: this.newComment,
+          time: "10秒前",
+          location: "辽宁",
+        });
+        this.showCommentInput = false;
+        this.newComment = "";
+      });
     },
   },
 };
@@ -245,6 +355,56 @@ article img {
     .news-body {
       img {
         width: 100%;
+      }
+    }
+  }
+}
+.loading-icon {
+  text-align: center;
+  margin: 20px auto;
+}
+.comment-input-modal {
+  width: 100%;
+  height: 10rem;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background-color: #ffffff;
+  z-index: 9000;
+  border-top: 1px solid #d6d6d6;
+  .edit-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    textarea {
+      display: inline-block;
+      width: 16rem;
+      height: 4rem;
+      border: 1px solid #d6d6d6;
+      margin: 1rem;
+      padding: 0.5rem;
+      border-radius: 5px;
+      background-color: #f8f8f8;
+      font-size: 1rem;
+    }
+    .post-button {
+      color: #c7c7c7;
+      font-size: 1.15rem;
+      margin: 0.5rem;
+      font-weight: bold;
+    }
+  }
+  .buttons-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .left {
+      margin: 0 1rem;
+    }
+    .right {
+      margin: 0 1rem;
+      .icon {
+        margin: 0 0.5rem;
       }
     }
   }
