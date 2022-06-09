@@ -48,7 +48,7 @@ a {
   box-sizing: border-box;
   border-top: 1px solid #d4d4d4;
   position: fixed;
-  z-index: 3000;
+  z-index: 2000;
   bottom: 0;
   left: 0;
   font-size: 0.85rem;

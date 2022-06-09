@@ -16,73 +16,153 @@
     </div>
     <div class="avatar-box">
       <div class="avatar">
-        <img :src="avatarUrl" />
+        <van-uploader
+          :before-read="beforeRead"
+          :after-read="afterRead"
+          :preview-full-image="false"
+          :deletable="false"
+          :max-count="1"
+        >
+          <van-image round :src="userinfo.userAvatar" />
+        </van-uploader>
       </div>
       <div class="text">点击更换头像</div>
     </div>
     <div class="info-items">
-      <span class="title">用户名</span>
-      <span class="text" :class="{ filled: userName }">
-        {{ userName }}
-        <font-awesome-icon :icon="['fas', 'angle-right']"></font-awesome-icon>
-      </span>
+      <van-field
+        v-model="userinfo.userName"
+        name="用户名"
+        label="用户名"
+        placeholder="待完善"
+      />
     </div>
     <div class="info-items">
-      <span class="title">简介</span>
-      <span class="text" :class="{ filled: userDec }">
-        {{ userDec ? userDec : "待完善" }}
-        <font-awesome-icon :icon="['fas', 'angle-right']"></font-awesome-icon>
-      </span>
+      <van-field
+        v-model="userinfo.userDec"
+        name="简介"
+        label="简介"
+        placeholder="待完善"
+      />
     </div>
     <div class="info-items">
-      <span class="title">背景图</span>
-      <span class="text" :class="{ filled: backgroundImgUrl }">
-        {{ backgroundImgUrl ? backgroundImgUrl : "去更换" }}
-        <font-awesome-icon :icon="['fas', 'angle-right']"></font-awesome-icon>
-      </span>
+      <van-field
+        v-model="userinfo.userSex"
+        is-link
+        readonly
+        name="picker"
+        label="性别"
+        placeholder="待完善"
+        @click="showPicker = true"
+      />
+      <van-popup v-model:show="showPicker" position="bottom">
+        <van-picker
+          :columns="columns"
+          @confirm="onConfirmSex"
+          @cancel="showPicker = false"
+        />
+      </van-popup>
     </div>
     <div class="info-items">
-      <span class="title">性别</span>
-      <span class="text" :class="{ filled: userSex }">
-        {{ userSex }}
-        <font-awesome-icon :icon="['fas', 'angle-right']"></font-awesome-icon>
-      </span>
+      <van-field
+        v-model="userinfo.userBirthday"
+        is-link
+        readonly
+        name="calendar"
+        label="生日"
+        placeholder="待完善"
+        @click="showCalendar = true"
+      />
+      <van-calendar v-model:show="showCalendar" @confirm="onConfirmBirthday" />
     </div>
     <div class="info-items">
-      <span class="title">生日</span>
-      <span class="text" :class="{ filled: userBirthday }">
-        {{ userBirthday ? userBirthday : "待完善" }}
-        <font-awesome-icon :icon="['fas', 'angle-right']"></font-awesome-icon>
-      </span>
-    </div>
-    <div class="info-items">
-      <span class="title">地区</span>
-      <span class="text" :class="{ filled: userArea }">
-        {{ userArea ? userArea : "待完善" }}
-        <font-awesome-icon :icon="['fas', 'angle-right']"></font-awesome-icon>
-      </span>
+      <van-field
+        v-model="userinfo.userArea"
+        is-link
+        readonly
+        name="area"
+        label="地区"
+        placeholder="待完善"
+        @click="showArea = true"
+      />
+      <van-popup v-model:show="showArea" position="bottom">
+        <van-area
+          :area-list="areaList"
+          @confirm="onConfirmArea"
+          @cancel="showArea = false"
+        />
+      </van-popup>
     </div>
   </div>
 </template>
 <script>
+import { getApi, postApi } from "@/util/api.js";
+import { areaList } from "@vant/area-data";
+
 export default {
   data() {
     return {
-      userName: "ABCD",
-      userDec: "",
-      backgroundImgUrl: "",
-      userSex: "女",
-      userBirthday: "",
-      userArea: "",
-      avatarUrl:
-        "https://images.unsplash.com/photo-1647966720854-c24a7a2ee263?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
+      userinfo: {
+        userId: "",
+        userName: "",
+        userDec: "",
+        userSex: "",
+        userBirthday: "",
+        userArea: "",
+        userAvatar: ""
+      },
+      showArea: false,
+      showCalendar: false,
+      showPicker: false,
+      areaList: areaList,
+      columns: ["男", "女"]
     };
+  },
+  mounted() {
+    getApi("/userinfo/" + this.userId).then((res) => {
+      console.log(res);
+      this.userinfo = res.data;
+      this.$store.commit("updateUserInfo", this.userinfo);
+    });
   },
   methods: {
     back() {
       this.$router.go(-1);
     },
-  },
+    onConfirmArea(areaValues) {
+      this.showArea = false;
+      this.userinfo.userArea = areaValues
+        .filter((item) => !!item)
+        .map((item) => item.name)
+        .join("/");
+    },
+    onConfirmBirthday(date) {
+      this.userinfo.userBirthday = `${date.getMonth() + 1}/${date.getDate()}`;
+      this.showCalendar = false;
+    },
+    onConfirmSex(value) {
+      this.userinfo.userSex = value;
+      this.showPicker = false;
+    },
+    beforeRead(file) {
+      const url = window.URL || window.webkitURL || window.mozURL;
+      const src = url.createObjectURL(file); // 本地临时的地址
+      this.userinfo.userAvatar = src;
+      return true;
+    },
+    afterRead() {
+      this.$toast.loading({
+        duration: 12000,
+        forbidClick: true
+      });
+      postApi("/updateuserinfo", {
+        userId: this.userId
+      }).then((res) => {
+        // 更新服务器url
+        this.userinfo.userAvatar = res.data.userAvatar;
+        this.$toast.success("更新成功！");
+      });
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>

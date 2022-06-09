@@ -116,7 +116,7 @@ import { mapState } from "vuex";
 export default {
   name: "NewsDetailView",
   components: {
-    NewsCommentList,
+    NewsCommentList
   },
   data() {
     return {
@@ -134,15 +134,15 @@ export default {
       commentsList: [],
       isLoading: false,
       showCommentInput: false,
-      newComment: "",
+      newComment: ""
     };
   },
   computed: {
     ...mapState({
-      userId: "userId",
-      userName: "userName",
-      userAvatar: "userAvatar",
-    }),
+      userId: (state) => state.userInfo.userId,
+      userName: (state) => state.userInfo.userName,
+      userAvatar: (state) => state.userInfo.userAvatar
+    })
   },
   mounted() {
     this.id = this.$route.params.id;
@@ -187,7 +187,7 @@ export default {
       postApi("/newscomment", {
         newsId: this.id,
         userId: this.userId,
-        content: this.newComment,
+        content: this.newComment
       }).then(() => {
         this.commentsList.unshift({
           id: "cmt20000001",
@@ -199,13 +199,13 @@ export default {
           likeNum: 0,
           content: this.newComment,
           time: "10秒前",
-          location: "辽宁",
+          location: "辽宁"
         });
         this.showCommentInput = false;
         this.newComment = "";
       });
-    },
-  },
+    }
+  }
 };
 </script>
 

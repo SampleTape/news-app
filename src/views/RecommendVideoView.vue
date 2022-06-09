@@ -15,12 +15,12 @@ import VideoCard from "@/components/VideoCard.vue";
 import { getApi } from "@/util/api.js";
 export default {
   components: {
-    VideoCard,
+    VideoCard
   },
   data() {
     return {
       videoList: [],
-      isLoading: true,
+      isLoading: true
     };
   },
   mounted() {
@@ -28,7 +28,7 @@ export default {
       res.data.forEach((v) => {
         this.videoList.push({
           ...v,
-          initPlaying: false,
+          initPlaying: false
         });
       });
 
@@ -63,12 +63,12 @@ export default {
       if (document.compatMode == "BackCompat") {
         return {
           width: document.body.clientWidth,
-          height: document.body.clientHeight,
+          height: document.body.clientHeight
         };
       } else {
         return {
           width: document.documentElement.clientWidth,
-          height: document.documentElement.clientHeight,
+          height: document.documentElement.clientHeight
         };
       }
     },
@@ -89,8 +89,8 @@ export default {
       }
 
       return actualTop - elementScrollTop;
-    },
-  },
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>
