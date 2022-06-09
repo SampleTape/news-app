@@ -9,10 +9,18 @@ export default createStore({
       userSex: "",
       userBirthday: "",
       userArea: "",
-      userAvatar: ""
+      userAvatar: "",
+      postNum: 0,
+      likeNum: 0,
+      followerNum: 0,
+      followingNum: 0
     }
   },
-  getters: {},
+  getters: {
+    isLogin(state) {
+      return state.userInfo.userId !== "";
+    }
+  },
   mutations: {
     updateUserInfo(state, newObj) {
       state.userInfo = newObj;

@@ -6,7 +6,7 @@
           <span v-if="index < 3">
             <router-link
               :to="{
-                name: item.name,
+                name: item.name
               }"
               >{{ item.text }}</router-link
             ></span
@@ -23,7 +23,7 @@ export default {
   name: "NavBar",
   props: {
     items: Array,
-    showMore: Boolean,
+    showMore: Boolean
   },
 
   data() {
@@ -32,7 +32,7 @@ export default {
 
   mounted() {},
 
-  methods: {},
+  methods: {}
 };
 </script>
 

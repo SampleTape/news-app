@@ -142,7 +142,10 @@ export default {
       userId: (state) => state.userInfo.userId,
       userName: (state) => state.userInfo.userName,
       userAvatar: (state) => state.userInfo.userAvatar
-    })
+    }),
+    isLogin() {
+      return this.$store.getters.isLogin;
+    }
   },
   mounted() {
     this.id = this.$route.params.id;
@@ -184,6 +187,10 @@ export default {
       });
     },
     postComment() {
+      if (!this.isLogin) {
+        this.$router.push({ name: "login" });
+        return;
+      }
       postApi("/newscomment", {
         newsId: this.id,
         userId: this.userId,

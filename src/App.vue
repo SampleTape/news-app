@@ -2,7 +2,9 @@
   <router-view />
   <FooterComponent></FooterComponent>
 </template>
-
+<script>
+export default {};
+</script>
 <style lang="scss">
 html,
 body {

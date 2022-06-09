@@ -129,6 +129,7 @@ export default {
       this.$router.go(-1);
     },
     onConfirmArea(areaValues) {
+      // 调用接口
       this.showArea = false;
       this.userinfo.userArea = areaValues
         .filter((item) => !!item)
@@ -136,10 +137,12 @@ export default {
         .join("/");
     },
     onConfirmBirthday(date) {
+      // 调用接口
       this.userinfo.userBirthday = `${date.getMonth() + 1}/${date.getDate()}`;
       this.showCalendar = false;
     },
     onConfirmSex(value) {
+      // 调用接口
       this.userinfo.userSex = value;
       this.showPicker = false;
     },

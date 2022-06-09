@@ -3,6 +3,7 @@ import CinemaView from "../views/CinemaView.vue";
 import EditUserInfoView from "../views/EditUserInfoView.vue";
 import HomeView from "../views/HomeView.vue";
 import HotListView from "../views/HotListView.vue";
+import LoginView from "../views/LoginView.vue";
 import NewsDetailView from "../views/NewsDetailView.vue";
 import RecommendCinemaView from "../views/RecommendCinemaView.vue";
 import RecommendVideoView from "../views/RecommendVideoView.vue";
@@ -15,7 +16,7 @@ import VideoView from "../views/VideoView.vue";
 const routes = [
   {
     path: "/",
-    redirect: "/home",
+    redirect: "/home"
   },
   {
     path: "/home",
@@ -24,24 +25,24 @@ const routes = [
     children: [
       {
         path: "",
-        redirect: "/home/recommend",
+        redirect: "/home/recommend"
       },
       {
         path: "concern",
         name: "concern",
-        component: RecommendView,
+        component: RecommendView
       },
       {
         path: "recommend",
         name: "recommend",
-        component: RecommendView,
+        component: RecommendView
       },
       {
         path: "hot-list",
         name: "hot-list",
-        component: HotListView,
-      },
-    ],
+        component: HotListView
+      }
+    ]
   },
   {
     path: "/video",
@@ -50,24 +51,24 @@ const routes = [
     children: [
       {
         path: "",
-        redirect: "/video/video-recommend",
+        redirect: "/video/video-recommend"
       },
       {
         path: "/video/video-concern",
         name: "video-concern",
-        component: RecommendVideoView,
+        component: RecommendVideoView
       },
       {
         path: "/video/video-recommend",
         name: "video-recommend",
-        component: RecommendVideoView,
+        component: RecommendVideoView
       },
       {
         path: "/video/video-hot-list",
         name: "video-hot-list",
-        component: RecommendVideoView,
-      },
-    ],
+        component: RecommendVideoView
+      }
+    ]
   },
   {
     path: "/cinema",
@@ -76,24 +77,24 @@ const routes = [
     children: [
       {
         path: "",
-        redirect: "/cinema/cinema-recommend",
+        redirect: "/cinema/cinema-recommend"
       },
       {
         path: "/cinema/cinema-recommend",
         name: "cinema-recommend",
-        component: RecommendCinemaView,
+        component: RecommendCinemaView
       },
       {
         path: "/cinema/movie",
         name: "movie",
-        component: RecommendCinemaView,
+        component: RecommendCinemaView
       },
       {
         path: "/cinema/tvshows",
         name: "tvshows",
-        component: RecommendCinemaView,
-      },
-    ],
+        component: RecommendCinemaView
+      }
+    ]
   },
   {
     path: "/user",
@@ -102,30 +103,36 @@ const routes = [
     children: [
       {
         path: "",
-        component: UserMainView,
+        name: "user-main",
+        component: UserMainView
       },
       {
         path: "user-edit-info",
         name: "user-edit-info",
-        component: EditUserInfoView,
+        component: EditUserInfoView
       },
       {
         path: "/user-like-list",
         name: "user-like-list",
-        component: UserLikeList,
-      },
-    ],
+        component: UserLikeList
+      }
+    ]
   },
   {
     path: "/news-detail/:id",
     name: "news-detail",
-    component: NewsDetailView,
+    component: NewsDetailView
   },
+  {
+    path: "/login",
+    name: "login",
+    component: LoginView
+  }
 ];
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes,
+  routes
 });
 
 export default router;

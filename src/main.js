@@ -10,8 +10,11 @@ import { fas } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   Area,
+  Button,
   Calendar,
+  CellGroup,
   Field,
+  Form,
   Image as VanImage,
   Lazyload,
   Loading,
@@ -44,11 +47,14 @@ app.use(Loading);
 app.use(Toast);
 app.use(Popup);
 app.use(Area);
+app.use(Form);
 app.use(Field);
 app.use(Calendar);
 app.use(Picker);
 app.use(Uploader);
 app.use(VanImage);
+app.use(CellGroup);
+app.use(Button);
 app.use(router);
 
 app.mount("#app");

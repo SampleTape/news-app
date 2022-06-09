@@ -6,14 +6,14 @@ axios.defaults.baseURL =
 function getApi(url) {
   return axios({
     method: "get",
-    url,
+    url
   });
 }
 function postApi(url, data) {
   return axios({
     method: "post",
     url,
-    data,
+    data
   });
 }
 

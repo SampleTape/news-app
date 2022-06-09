@@ -6,7 +6,7 @@
           <font-awesome-icon :icon="['fas', 'expand']"></font-awesome-icon>
         </span>
       </div>
-      <div class="right">
+      <div class="right" v-if="isLogin">
         <span>
           <font-awesome-icon :icon="['far', 'envelope']"></font-awesome-icon>
         </span>
@@ -15,30 +15,31 @@
         </span>
       </div>
     </div>
-    <div class="user-info">
+    <div class="login-button" v-if="!isLogin" @click="gotoLogin">登录</div>
+    <div class="user-info" v-if="isLogin">
       <div class="left">
         <div class="avatar-container">
-          <img :src="avatarUrl" />
+          <img :src="userInfo.userAvatar" />
         </div>
-        <div class="username">{{ userName }}</div>
+        <div class="username">{{ userInfo.userName }}</div>
       </div>
       <div class="right">个人中心 ></div>
     </div>
-    <div class="user-nums">
+    <div class="user-nums" v-if="isLogin">
       <div class="user-nums-item">
-        <div class="num">{{ postNum }}</div>
+        <div class="num">{{ userInfo.postNum }}</div>
         <div class="title">头条</div>
       </div>
       <div class="user-nums-item">
-        <div class="num">{{ likeNum }}</div>
+        <div class="num">{{ userInfo.likeNum }}</div>
         <div class="title">获赞</div>
       </div>
       <div class="user-nums-item">
-        <div class="num">{{ followerNum }}</div>
+        <div class="num">{{ userInfo.followerNum }}</div>
         <div class="title">粉丝</div>
       </div>
       <div class="user-nums-item">
-        <div class="num">{{ followingNum }}</div>
+        <div class="num">{{ userInfo.followingNum }}</div>
         <div class="title">关注</div>
       </div>
     </div>
@@ -171,17 +172,13 @@
   </div>
 </template>
 <script>
+import { mapState } from "vuex";
 export default {
-  data() {
-    return {
-      userName: "ABCD",
-      avatarUrl:
-        "https://images.unsplash.com/photo-1647966720854-c24a7a2ee263?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=387&q=80",
-      postNum: 10,
-      likeNum: 10,
-      followerNum: 1110,
-      followingNum: 200,
-    };
+  computed: {
+    isLogin() {
+      return this.$store.getters.isLogin;
+    },
+    ...mapState(["userInfo"])
   },
   methods: {
     gotoEditInfo() {
@@ -190,14 +187,17 @@ export default {
     gotoLikeList() {
       this.$router.push({ name: "user-like-list" });
     },
-  },
+    gotoLogin() {
+      this.$router.push({ name: "login" });
+    }
+  }
 };
 </script>
 <style lang="scss" scoped>
 .user-view {
-  height: 100vh;
   padding: 0 1rem 4rem;
   background-color: #f8f8f8;
+  margin-bottom: 4rem;
   .little-buttons {
     width: 100%;
     height: 3rem;
@@ -212,6 +212,18 @@ export default {
       justify-content: space-between;
       align-items: center;
     }
+  }
+  .login-button {
+    width: 6rem;
+    height: 6rem;
+    margin: 3rem auto;
+    border-radius: 3rem;
+    background-color: #fe0505;
+    color: #ffffff;
+    font-size: 1rem;
+    line-height: 6rem;
+    text-align: center;
+    font-weight: bold;
   }
   .user-info {
     width: 100%;

@@ -18,7 +18,7 @@
     <router-link class="footer-item" to="/user">
       <img class="icon" src="@/assets/user.png" />
       <img class="icon" src="@/assets/user-line.png" />
-      <span class="item-title">我的</span>
+      <span class="item-title">{{ isLogin ? "我的" : "未登录" }}</span>
     </router-link>
   </div>
 </template>
@@ -31,9 +31,15 @@ export default {
     return {};
   },
 
+  computed: {
+    isLogin() {
+      return this.$store.getters.isLogin;
+    }
+  },
+
   mounted() {},
 
-  methods: {},
+  methods: {}
 };
 </script>
 

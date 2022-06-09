@@ -25,7 +25,7 @@
           :icon="['fas', 'magnifying-glass']"
         ></font-awesome-icon>
       </span>
-      <input type="text" placeholder="搜索你关注的人" />
+      <input type="text" placeholder="搜索你关注的人" v-model="searchText" />
     </div>
     <div class="sort-bar">
       <div>排序方式</div>
@@ -34,8 +34,9 @@
         <font-awesome-icon :icon="['fas', 'caret-down']"></font-awesome-icon>
       </div>
     </div>
-    <ul class="list">
-      <li v-for="(item, index) in items" :key="index">
+    <van-loading type="spinner" v-if="isLoading" class="loading-icon" />
+    <ul v-if="!isLoading" class="list">
+      <li v-for="(item, index) in searchResult" :key="index">
         <div class="left">
           <div class="avatar">
             <img :src="item.imgUrl" />
@@ -52,76 +53,60 @@
         </div>
       </li>
     </ul>
-    <div class="show-all">已显示全部关注用户</div>
+    <div v-if="!isLoading" class="show-all">已显示全部关注用户</div>
   </div>
 </template>
 
 <script>
+import { getApi } from "@/util/api.js";
 export default {
   name: "UserLikeList",
 
   data() {
     return {
-      items: [
-        {
-          id: "00010101",
-          name: "前端周老师",
-          followerNum: "200",
-          dec: "优质科技领域创作者",
-          imgUrl:
-            "https://www.iconninja.com/files/262/537/114/snow-boy-icon.png",
-          state: 1,
-          isUpdate: 0,
-        },
-        {
-          id: "00010102",
-          name: "字节前端",
-          followerNum: "2.5万",
-          dec: "优质科技领域创作者",
-          imgUrl:
-            "https://www.iconninja.com/files/262/537/114/snow-boy-icon.png",
-          state: 1,
-          isUpdate: 0,
-        },
-        {
-          id: "00010103",
-          name: "前端周老师",
-          followerNum: "200",
-          dec: "优质科技领域创作者",
-          imgUrl: "https://www.iconninja.com/files/52/84/997/boy-icon.png",
-          state: 1,
-          isUpdate: 1,
-        },
-        {
-          id: "00010104",
-          name: "前端周老师",
-          followerNum: "200",
-          dec: "优质科技领域创作者",
-          imgUrl: "https://www.iconninja.com/files/52/84/997/boy-icon.png",
-          state: 1,
-          isUpdate: 0,
-        },
-      ],
+      items: [],
       activeTab: 0,
+      searchText: "",
+      isLoading: false
     };
   },
 
-  mounted() {},
+  computed: {
+    searchResult() {
+      if (this.searchText === "") {
+        return this.items;
+      }
+      return this.items.filter((item) => {
+        return item.name.match(this.searchText);
+      });
+    },
+    userId() {
+      return this.$store.state.userInfo.userId;
+    }
+  },
+
+  mounted() {
+    this.isLoading = true;
+    getApi("/userlikelist/" + this.userId).then((res) => {
+      this.items = res.data;
+      this.isLoading = false;
+    });
+  },
 
   methods: {
     back() {
       this.$router.go(-1);
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style lang="scss" scoped>
 .user-like-list {
   box-sizing: border-box;
-  height: 100vh;
   padding: 3rem 1rem;
   color: #222222;
+  margin-bottom: 4rem;
   ul,
   li {
     list-style: none;
@@ -245,5 +230,9 @@ export default {
     padding: 2rem 0;
     text-align: center;
   }
+}
+.loading-icon {
+  text-align: center;
+  margin: 20px auto;
 }
 </style>
